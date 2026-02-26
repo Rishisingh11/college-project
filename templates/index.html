@@ -2,79 +2,148 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#667eea">
     <title>College Blind Date - Find Your Match</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
         <header>
             <h1>💘 College Blind Date</h1>
             <p>Find your perfect anonymous match on campus!</p>
+            <div class="header-stats" id="live-stats">
+                <span class="stat-pill">🔥 <span id="header-users">0</span> users</span>
+                <span class="stat-pill">💕 <span id="header-matches">0</span> matches</span>
+            </div>
         </header>
 
         <div id="registration-form" class="form-container">
-            <h2>Tell us about yourself</h2>
+            <div class="form-header">
+                <h2>Tell us about yourself</h2>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+            </div>
             <form id="userForm">
-                <div class="form-group">
-                    <label for="gender">Your Gender:</label>
-                    <select id="gender" name="gender" required>
-                        <option value="">Select your gender</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                        <option value="Non-binary">Non-binary</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
+                <div class="form-step active" data-step="1">
+                    <div class="form-group">
+                        <label for="gender">Your Gender:</label>
+                        <div class="custom-select">
+                            <select id="gender" name="gender" required aria-describedby="gender-error">
+                                <option value="">Select your gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Non-binary">Non-binary</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <span class="error-message" id="gender-error" role="alert"></span>
+                    </div>
 
-                <div class="form-group">
-                    <label for="preferred_gender">Looking for:</label>
-                    <select id="preferred_gender" name="preferred_gender" required>
-                        <option value="">Select preferred gender</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                        <option value="Non-binary">Non-binary</option>
-                        <option value="Other">Other</option>
-                        <option value="Any">Any</option>
-                    </select>
+                    <div class="form-group">
+                        <label for="preferred_gender">Looking for:</label>
+                        <div class="custom-select">
+                            <select id="preferred_gender" name="preferred_gender" required aria-describedby="preferred_gender-error">
+                                <option value="">Select preferred gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Non-binary">Non-binary</option>
+                                <option value="Other">Other</option>
+                                <option value="Any">Any</option>
+                            </select>
+                        </div>
+                        <span class="error-message" id="preferred_gender-error" role="alert"></span>
+                    </div>
                 </div>
+                
+                <div class="form-step" data-step="2">
+                    <div class="form-group">
+                        <label for="year">Your Year:</label>
+                        <div class="custom-select">
+                            <select id="year" name="year" required>
+                                <option value="">Select your year</option>
+                                {% for year in years %}
+                                <option value="{{ year }}">{{ year }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <span class="error-message" id="year-error"></span>
+                    </div>
 
-                <div class="form-group">
-                    <label for="year">Your Year:</label>
-                    <select id="year" name="year" required>
-                        <option value="">Select your year</option>
-                        {% for year in years %}
-                        <option value="{{ year }}">{{ year }}</option>
-                        {% endfor %}
-                    </select>
+                    <div class="form-group">
+                        <label for="preferred_year">Preferred Year to Date:</label>
+                        <div class="custom-select">
+                            <select id="preferred_year" name="preferred_year" required>
+                                <option value="">Select preferred year</option>
+                                {% for year in years %}
+                                <option value="{{ year }}">{{ year }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <span class="error-message" id="preferred_year-error"></span>
+                    </div>
                 </div>
+                
+                <div class="form-step" data-step="3">
+                    <div class="form-group">
+                        <label for="hobbies">Your Interests & Hobbies:</label>
+                        <div class="interests-section">
+                            <div class="popular-interests">
+                                <h4>Popular Interests:</h4>
+                                <div class="interest-tags" id="popular-tags">
+                                    <span class="interest-tag" data-interest="Reading">📚 Reading</span>
+                                    <span class="interest-tag" data-interest="Music">🎵 Music</span>
+                                    <span class="interest-tag" data-interest="Gaming">🎮 Gaming</span>
+                                    <span class="interest-tag" data-interest="Sports">⚽ Sports</span>
+                                    <span class="interest-tag" data-interest="Art">🎨 Art</span>
+                                    <span class="interest-tag" data-interest="Movies">🎬 Movies</span>
+                                    <span class="interest-tag" data-interest="Travel">✈️ Travel</span>
+                                    <span class="interest-tag" data-interest="Cooking">👨‍🍳 Cooking</span>
+                                    <span class="interest-tag" data-interest="Photography">📸 Photography</span>
+                                    <span class="interest-tag" data-interest="Fitness">💪 Fitness</span>
+                                    <span class="interest-tag" data-interest="Dancing">💃 Dancing</span>
+                                    <span class="interest-tag" data-interest="Technology">💻 Technology</span>
+                                </div>
+                            </div>
+                            <div class="selected-interests">
+                                <h4>Your Selected Interests:</h4>
+                                <div class="selected-tags" id="selected-tags">
+                                    <span class="empty-state">Click interests above or add custom ones below</span>
+                                </div>
+                            </div>
+                            <div class="custom-interest">
+                                <input type="text" id="custom-interest" placeholder="Add custom interest...">
+                                <button type="button" id="add-interest" class="add-btn">+ Add</button>
+                            </div>
+                            <input type="hidden" id="hobbies" name="hobbies" required>
+                        </div>
+                        <span class="error-message" id="hobbies-error"></span>
+                    </div>
 
-                <div class="form-group">
-                    <label for="preferred_year">Preferred Year to Date:</label>
-                    <select id="preferred_year" name="preferred_year" required>
-                        <option value="">Select preferred year</option>
-                        {% for year in years %}
-                        <option value="{{ year }}">{{ year }}</option>
-                        {% endfor %}
-                    </select>
+                    <div class="form-group">
+                        <label for="contact_info">Contact Info (optional):</label>
+                        <div class="input-with-icon">
+                            <input type="text" id="contact_info" name="contact_info" 
+                                   placeholder="Email, phone, or social media handle">
+                            <span class="input-icon">📧</span>
+                        </div>
+                        <small>This will only be shared if you both agree to reveal identities</small>
+                        <span class="error-message" id="contact_info-error"></span>
+                    </div>
                 </div>
-
-                <div class="form-group">
-                    <label for="hobbies">Your Hobbies/Interests:</label>
-                    <input type="text" id="hobbies" name="hobbies" 
-                           placeholder="e.g. reading, hiking, music, gaming, art..." 
-                           required>
-                    <small>Separate multiple hobbies with commas</small>
+                
+                <div class="form-navigation">
+                    <button type="button" class="nav-btn prev-btn" id="prev-btn" style="display: none;">← Previous</button>
+                    <button type="button" class="nav-btn next-btn" id="next-btn">Next →</button>
+                    <button type="submit" class="submit-btn" id="submit-btn" style="display: none;">Find My Match! 💕</button>
                 </div>
-
-                <div class="form-group">
-                    <label for="contact_info">Contact Info (optional):</label>
-                    <input type="text" id="contact_info" name="contact_info" 
-                           placeholder="Email, phone, or social media handle">
-                    <small>This will only be shared if you both agree to reveal identities</small>
-                </div>
-
-                <button type="submit" class="submit-btn">Find My Match! 💕</button>
             </form>
         </div>
 
@@ -83,41 +152,144 @@
                 <h2>🔍 Looking for your match...</h2>
                 <div class="spinner"></div>
                 <p>You're in the system! We'll find you someone special.</p>
-                <button id="check-match-btn" class="check-btn">Check for Updates</button>
+                <div class="waiting-buttons">
+                    <button id="check-match-btn" class="check-btn">Check for Updates</button>
+                    <button id="cancel-match-btn" class="cancel-btn">Cancel & Go Back</button>
+                </div>
             </div>
         </div>
 
         <div id="match-result" class="result-container" style="display: none;">
             <div class="match-found">
-                <h2>🎉 Match Found!</h2>
-                <div class="match-details">
-                    <div class="detail-item">
-                        <span class="label">Your Date's ID:</span>
-                        <span class="value" id="anonymous-id"></span>
+                <div class="celebration-header">
+                    <h2>🎉 Perfect Match Found!</h2>
+                    <div class="celebration-animation">✨💖✨</div>
+                </div>
+                
+                <div class="match-profile-card">
+                    <div class="match-avatar">
+                        <div class="avatar-circle">
+                            <span id="match-avatar-text">?</span>
+                        </div>
+                        <div class="anonymous-badge">Anonymous</div>
                     </div>
-                    <div class="detail-item">
-                        <span class="label">Meeting Location:</span>
-                        <span class="value" id="location"></span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="label">Date & Time:</span>
-                        <span class="value" id="datetime"></span>
-                    </div>
-                    <div class="detail-item" id="compatibility-section" style="display: none;">
-                        <span class="label">Hobby Compatibility:</span>
-                        <span class="value" id="compatibility"></span>
+                    
+                    <div class="match-info">
+                        <div class="match-id-section">
+                            <label>Your Date's ID:</label>
+                            <div class="id-display">
+                                <span class="anonymous-id" id="anonymous-id"></span>
+                                <button class="copy-btn" onclick="copyToClipboard()" title="Copy ID">📋</button>
+                            </div>
+                        </div>
+                        
+                        <div class="compatibility-score">
+                            <div class="score-circle" id="score-circle">
+                                <span class="score-text" id="compatibility">0%</span>
+                                <small>Compatibility</small>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="match-instructions">
-                    <h3>📋 Instructions:</h3>
-                    <ul>
-                        <li>Look for someone with the anonymous ID above</li>
-                        <li>Both of you will have each other's anonymous IDs</li>
-                        <li>Decide together if you want to reveal your real identities</li>
-                        <li>Have fun and be respectful! 😊</li>
-                    </ul>
+                
+                <div class="date-details-card">
+                    <h3>📅 Your Date Details</h3>
+                    <div class="date-info-grid">
+                        <div class="date-info-item">
+                            <div class="info-icon">📍</div>
+                            <div class="info-content">
+                                <span class="info-label">Location</span>
+                                <span class="info-value" id="location"></span>
+                            </div>
+                        </div>
+                        <div class="date-info-item">
+                            <div class="info-icon">�</div>
+                            <div class="info-content">
+                                <span class="info-label">Date</span>
+                                <span class="info-value" id="date-only"></span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <button onclick="location.reload()" class="new-match-btn">Find Another Match</button>
+                
+                <!-- Time Negotiation Section -->
+                <div class="time-negotiation-card" id="time-negotiation">
+                    <h3>🕰️ Meeting Time Coordination</h3>
+                    
+                    <div class="time-status" id="time-status-display">
+                        <!-- Dynamic content based on time status -->
+                    </div>
+                    
+                    <div class="time-proposal-section" id="time-proposal" style="display: none;">
+                        <label for="proposed-time">Propose a Meeting Time:</label>
+                        <input type="time" id="proposed-time" class="time-input">
+                        <button class="propose-btn" onclick="proposeTime()">🕰️ Propose Time</button>
+                    </div>
+                    
+                    <div class="time-response-section" id="time-response" style="display: none;">
+                        <p>Your match proposed: <strong id="incoming-time"></strong></p>
+                        <div class="response-buttons">
+                            <button class="accept-btn" onclick="acceptTime()">✅ Accept</button>
+                            <div class="counter-proposal">
+                                <input type="time" id="counter-time" class="time-input">
+                                <button class="counter-btn" onclick="counterTime()">🔄 Counter-Propose</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Chat Section -->
+                <div class="chat-card" id="chat-section">
+                    <h3>💬 Chat with Your Match</h3>
+                    
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="chat-empty">Start a conversation! 😊</div>
+                    </div>
+                    
+                    <div class="chat-input-section">
+                        <div class="chat-input-container">
+                            <input type="text" id="chat-input" placeholder="Type a message..." maxlength="500">
+                            <button class="send-btn" onclick="sendMessage()">📤 Send</button>
+                        </div>
+                        <small class="char-counter"><span id="char-count">0</span>/500 characters</small>
+                    </div>
+                </div>
+                
+                <div class="match-instructions enhanced">
+                    <h3>💡 How to Meet Your Match:</h3>
+                    <div class="instruction-steps">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div class="step-text">Go to the location at the specified time</div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div class="step-text">Look for someone with your anonymous ID</div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div class="step-text">Both of you will have each other's IDs</div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">4</div>
+                            <div class="step-text">Decide together if you want to reveal identities</div>
+                        </div>
+                    </div>
+                    <div class="safety-tips">
+                        <h4>🛡️ Safety Tips:</h4>
+                        <ul>
+                            <li>Meet in public spaces only</li>
+                            <li>Let a friend know where you're going</li>
+                            <li>Trust your instincts</li>
+                            <li>Have fun and be respectful! 😊</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="match-actions">
+                    <button onclick="location.reload()" class="new-match-btn">✨ Find Another Match</button>
+                    <button class="share-btn" onclick="shareMatch()">📱 Share This Match</button>
+                </div>
             </div>
         </div>
 
@@ -128,9 +300,241 @@
     </div>
 
     <script>
-        // Form submission handler
+        // Global variables
+        let currentStep = 1;
+        const totalSteps = 3;
+        let selectedInterests = new Set();
+        
+        // Live stats update
+        async function updateLiveStats() {
+            try {
+                const response = await fetch('/stats');
+                const stats = await response.json();
+                document.getElementById('header-users').textContent = stats.total_users;
+                document.getElementById('header-matches').textContent = stats.total_matches;
+            } catch (error) {
+                console.log('Error fetching live stats');
+            }
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateLiveStats();
+            updateProgressBar();
+            setupInterestTags();
+            setupValidation();
+            setupFormNavigation();
+            // Update stats periodically
+            setInterval(updateLiveStats, 30000);
+        });
+        
+        // Multi-step form navigation
+        function setupFormNavigation() {
+            const nextBtn = document.getElementById('next-btn');
+            const prevBtn = document.getElementById('prev-btn');
+            const submitBtn = document.getElementById('submit-btn');
+            
+            nextBtn.addEventListener('click', function() {
+                if (validateCurrentStep()) {
+                    if (currentStep < totalSteps) {
+                        currentStep++;
+                        updateFormStep();
+                    }
+                }
+            });
+            
+            prevBtn.addEventListener('click', function() {
+                if (currentStep > 1) {
+                    currentStep--;
+                    updateFormStep();
+                }
+            });
+        }
+        
+        function updateFormStep() {
+            const formSteps = document.querySelectorAll('.form-step');
+            const nextBtn = document.getElementById('next-btn');
+            const prevBtn = document.getElementById('prev-btn');
+            const submitBtn = document.getElementById('submit-btn');
+            
+            // Hide all steps
+            formSteps.forEach(step => {
+                step.classList.remove('active');
+            });
+            
+            // Show current step
+            document.querySelector(`[data-step=\"${currentStep}\"]`).classList.add('active');
+            
+            // Update navigation buttons
+            prevBtn.style.display = currentStep === 1 ? 'none' : 'inline-block';
+            nextBtn.style.display = currentStep === totalSteps ? 'none' : 'inline-block';
+            submitBtn.style.display = currentStep === totalSteps ? 'inline-block' : 'none';
+            
+            updateProgressBar();
+        }
+        
+        function updateProgressBar() {
+            const progressFill = document.getElementById('progress-fill');
+            const progress = (currentStep / totalSteps) * 100;
+            progressFill.style.width = progress + '%';
+        }
+        
+        // Real-time form validation
+        function setupValidation() {
+            const inputs = document.querySelectorAll('select, input[required]');
+            inputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    validateField(this);
+                });
+                input.addEventListener('blur', function() {
+                    validateField(this);
+                });
+            });
+        }
+        
+        function validateField(field) {
+            const errorElement = document.getElementById(field.name + '-error');
+            let isValid = true;
+            let errorMessage = '';
+            
+            if (field.hasAttribute('required') && !field.value.trim()) {
+                isValid = false;
+                errorMessage = 'This field is required';
+            }
+            
+            if (field.name === 'hobbies' && selectedInterests.size === 0) {
+                isValid = false;
+                errorMessage = 'Please select at least one interest';
+            }
+            
+            if (errorElement) {
+                errorElement.textContent = errorMessage;
+                errorElement.style.display = isValid ? 'none' : 'block';
+            }
+            
+            field.classList.toggle('error', !isValid);
+            field.classList.toggle('valid', isValid && field.value.trim());
+            
+            return isValid;
+        }
+        
+        function validateCurrentStep() {
+            const currentStepElement = document.querySelector(`[data-step=\"${currentStep}\"]`);
+            const inputs = currentStepElement.querySelectorAll('select, input[required]');
+            let allValid = true;
+            
+            inputs.forEach(input => {
+                if (!validateField(input)) {
+                    allValid = false;
+                }
+            });
+            
+            // Special validation for interests
+            if (currentStep === 3 && selectedInterests.size === 0) {
+                document.getElementById('hobbies-error').textContent = 'Please select at least one interest';
+                document.getElementById('hobbies-error').style.display = 'block';
+                allValid = false;
+            }
+            
+            return allValid;
+        }
+        
+        // Interest tags functionality
+        function setupInterestTags() {
+            const popularTags = document.querySelectorAll('.interest-tag');
+            const customInterestInput = document.getElementById('custom-interest');
+            const addInterestBtn = document.getElementById('add-interest');
+            
+            popularTags.forEach(tag => {
+                tag.addEventListener('click', function() {
+                    toggleInterest(this.dataset.interest, this);
+                });
+            });
+            
+            addInterestBtn.addEventListener('click', function() {
+                const customInterest = customInterestInput.value.trim();
+                if (customInterest && !selectedInterests.has(customInterest)) {
+                    addCustomInterest(customInterest);
+                    customInterestInput.value = '';
+                }
+            });
+            
+            customInterestInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addInterestBtn.click();
+                }
+            });
+        }
+        
+        function toggleInterest(interest, tagElement) {
+            if (selectedInterests.has(interest)) {
+                selectedInterests.delete(interest);
+                tagElement.classList.remove('selected');
+            } else {
+                selectedInterests.add(interest);
+                tagElement.classList.add('selected');
+            }
+            updateSelectedInterests();
+        }
+        
+        function addCustomInterest(interest) {
+            selectedInterests.add(interest);
+            updateSelectedInterests();
+        }
+        
+        function updateSelectedInterests() {
+            const selectedTagsContainer = document.getElementById('selected-tags');
+            const hobbiesInput = document.getElementById('hobbies');
+            
+            selectedTagsContainer.innerHTML = '';
+            
+            if (selectedInterests.size === 0) {
+                selectedTagsContainer.innerHTML = '<span class=\"empty-state\">Click interests above or add custom ones below</span>';
+            } else {
+                selectedInterests.forEach(interest => {
+                    const tag = document.createElement('span');
+                    tag.className = 'selected-tag';
+                    tag.innerHTML = `${interest} <button type=\"button\" class=\"remove-tag\" onclick=\"removeInterest('${interest}')\">×</button>`;
+                    selectedTagsContainer.appendChild(tag);
+                });
+            }
+            
+            // Update hidden input
+            hobbiesInput.value = Array.from(selectedInterests).join(', ');
+            
+            // Validate interests
+            if (selectedInterests.size > 0) {
+                document.getElementById('hobbies-error').style.display = 'none';
+            }
+        }
+        
+        function removeInterest(interest) {
+            selectedInterests.delete(interest);
+            
+            // Remove selection from popular tags
+            const popularTag = document.querySelector(`[data-interest=\"${interest}\"]`);
+            if (popularTag) {
+                popularTag.classList.remove('selected');
+            }
+            
+            updateSelectedInterests();
+        }
+        
+        // Form submission handler with enhanced UX
         document.getElementById('userForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            
+            if (!validateCurrentStep()) {
+                return;
+            }
+            
+            const submitBtn = document.getElementById('submit-btn');
+            const originalText = submitBtn.textContent;
+            
+            // Show loading state
+            submitBtn.textContent = '💕 Finding Your Match...';
+            submitBtn.disabled = true;
             
             const formData = new FormData(this);
             
@@ -151,67 +555,406 @@
                         showWaitingScreen();
                     }
                 } else {
-                    alert('Error: ' + result.error);
+                    showNotification('Error: ' + result.error, 'error');
                 }
             } catch (error) {
-                alert('Network error. Please try again.');
+                showNotification('Network error. Please try again.', 'error');
+            } finally {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
             }
         });
 
-        // Check for match updates
-        document.getElementById('check-match-btn').addEventListener('click', async function() {
-            try {
-                const response = await fetch('/check_match');
-                const result = await response.json();
+        // Enhanced match result display
+        function showMatchResult(result) {
+            // Store match data globally for other functions
+            window.currentMatch = result;
+            
+            // Generate avatar based on ID
+            const avatarText = result.anonymous_id.slice(-2);
+            document.getElementById('match-avatar-text').textContent = avatarText;
+            
+            // Set match details
+            document.getElementById('anonymous-id').textContent = result.anonymous_id;
+            document.getElementById('location').textContent = result.location;
+            document.getElementById('date-only').textContent = result.date;
+            
+            // Enhanced compatibility display
+            if (result.hobby_compatibility) {
+                const compatibility = result.hobby_compatibility;
+                const scoreCircle = document.getElementById('score-circle');
+                const compatibilityText = document.getElementById('compatibility');
                 
-                if (result.status === 'matched') {
-                    document.getElementById('waiting-screen').style.display = 'none';
-                    showMatchResult(result);
+                compatibilityText.textContent = compatibility;
+                
+                // Color-code the compatibility score
+                const score = parseInt(compatibility);
+                if (score >= 70) {
+                    scoreCircle.classList.add('high-compatibility');
+                } else if (score >= 40) {
+                    scoreCircle.classList.add('medium-compatibility');
+                } else {
+                    scoreCircle.classList.add('low-compatibility');
                 }
-            } catch (error) {
-                console.log('Error checking for matches');
-            }
-        });
-
-        // Show stats
-        document.getElementById('show-stats').addEventListener('click', async function() {
-            try {
-                const response = await fetch('/stats');
-                const stats = await response.json();
                 
-                const statsDisplay = document.getElementById('stats-display');
-                statsDisplay.innerHTML = `
-                    <div class="stats-grid">
-                        <div class="stat-item">
-                            <div class="stat-number">${stats.total_users}</div>
-                            <div class="stat-label">Total Users</div>
+                // Animate the score
+                animateScore(score);
+            }
+            
+            // Handle time negotiation status
+            updateTimeStatus(result);
+            
+            // Initialize chat
+            if (result.chat_enabled) {
+                initializeChat();
+                loadMessages();
+            }
+            
+            document.getElementById('match-result').style.display = 'block';
+            
+            // Scroll to result
+            document.getElementById('match-result').scrollIntoView({ 
+                behavior: 'smooth' 
+            });
+        }
+        
+        // Update time negotiation interface
+        function updateTimeStatus(matchData) {
+            const timeStatus = matchData.time_status;
+            const proposedBy = matchData.proposed_by;
+            const proposedTime = matchData.proposed_time;
+            const isProposer = matchData.is_proposer;
+            
+            const statusDisplay = document.getElementById('time-status-display');
+            const proposalSection = document.getElementById('time-proposal');
+            const responseSection = document.getElementById('time-response');
+            
+            // Hide all sections first
+            proposalSection.style.display = 'none';
+            responseSection.style.display = 'none';
+            
+            switch (timeStatus) {
+                case 'pending':
+                    statusDisplay.innerHTML = `
+                        <div class="status-pending">
+                            <p>⏳ No meeting time set yet. Coordinate with your match!</p>
                         </div>
-                        <div class="stat-item">
-                            <div class="stat-number">${stats.total_matches}</div>
-                            <div class="stat-label">Matches Made</div>
+                    `;
+                    proposalSection.style.display = 'block';
+                    break;
+                    
+                case 'proposed':
+                    if (isProposer) {
+                        statusDisplay.innerHTML = `
+                            <div class="status-waiting">
+                                <p>⏰ You proposed: <strong>${formatTime(proposedTime)}</strong></p>
+                                <p>Waiting for your match to respond...</p>
+                            </div>
+                        `;
+                    } else {
+                        statusDisplay.innerHTML = `
+                            <div class="status-received">
+                                <p>📩 Your match has a time suggestion!</p>
+                            </div>
+                        `;
+                        document.getElementById('incoming-time').textContent = formatTime(proposedTime);
+                        responseSection.style.display = 'block';
+                    }
+                    break;
+                    
+                case 'counter_proposed':
+                    if (isProposer) {
+                        statusDisplay.innerHTML = `
+                            <div class="status-waiting">
+                                <p>⏰ You counter-proposed: <strong>${formatTime(proposedTime)}</strong></p>
+                                <p>Waiting for your match to respond...</p>
+                            </div>
+                        `;
+                    } else {
+                        statusDisplay.innerHTML = `
+                            <div class="status-received">
+                                <p>🔄 Your match made a counter-proposal!</p>
+                            </div>
+                        `;
+                        document.getElementById('incoming-time').textContent = formatTime(proposedTime);
+                        responseSection.style.display = 'block';
+                    }
+                    break;
+                    
+                case 'accepted':
+                    statusDisplay.innerHTML = `
+                        <div class="status-confirmed">
+                            <p>✅ Time Confirmed: <strong>${formatTime(proposedTime)}</strong></p>
+                            <p>🎉 Your date is all set! Don't forget to show up!</p>
                         </div>
-                        <div class="stat-item">
-                            <div class="stat-number">${stats.waiting_users}</div>
-                            <div class="stat-label">Looking for Love</div>
+                    `;
+                    break;
+            }
+        }
+        
+        // Format time for display
+        function formatTime(time24) {
+            if (!time24) return '';
+            const [hours, minutes] = time24.split(':');
+            const hour12 = hours % 12 || 12;
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            return `${hour12}:${minutes} ${ampm}`;
+        }
+        
+        // Time negotiation functions
+        function proposeTime() {
+            const timeInput = document.getElementById('proposed-time');
+            const time = timeInput.value;
+            
+            if (!time) {
+                showNotification('Please select a time', 'error');
+                return;
+            }
+            
+            fetch('/propose_time', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ time: time })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showNotification(data.message, 'success');
+                    // Refresh match data
+                    refreshMatchData();
+                } else {
+                    showNotification(data.error || 'Failed to propose time', 'error');
+                }
+            })
+            .catch(() => {
+                showNotification('Network error', 'error');
+            });
+        }
+        
+        function acceptTime() {
+            fetch('/respond_time', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'accept' })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showNotification(data.message, 'success');
+                    refreshMatchData();
+                } else {
+                    showNotification(data.error || 'Failed to accept time', 'error');
+                }
+            })
+            .catch(() => {
+                showNotification('Network error', 'error');
+            });
+        }
+        
+        function counterTime() {
+            const counterTimeInput = document.getElementById('counter-time');
+            const time = counterTimeInput.value;
+            
+            if (!time) {
+                showNotification('Please select a time for counter-proposal', 'error');
+                return;
+            }
+            
+            fetch('/respond_time', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'counter', time: time })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showNotification(data.message, 'success');
+                    refreshMatchData();
+                } else {
+                    showNotification(data.error || 'Failed to counter-propose', 'error');
+                }
+            })
+            .catch(() => {
+                showNotification('Network error', 'error');
+            });
+        }
+        
+        // Refresh match data
+        function refreshMatchData() {
+            fetch('/check_match')
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'matched') {
+                    updateTimeStatus(data);
+                }
+            })
+            .catch(console.error);
+        }
+        
+        // Chat functionality
+        function initializeChat() {
+            const chatInput = document.getElementById('chat-input');
+            const charCount = document.getElementById('char-count');
+            
+            // Character counter
+            chatInput.addEventListener('input', function() {
+                charCount.textContent = this.value.length;
+            });
+            
+            // Send message on Enter key
+            chatInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+            
+            // Auto-refresh messages every 5 seconds
+            setInterval(loadMessages, 5000);
+        }
+        
+        function sendMessage() {
+            const chatInput = document.getElementById('chat-input');
+            const message = chatInput.value.trim();
+            
+            if (!message) {
+                showNotification('Please enter a message', 'error');
+                return;
+            }
+            
+            if (message.length > 500) {
+                showNotification('Message too long (max 500 characters)', 'error');
+                return;
+            }
+            
+            // Disable input while sending
+            chatInput.disabled = true;
+            
+            fetch('/send_message', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    chatInput.value = '';
+                    document.getElementById('char-count').textContent = '0';
+                    loadMessages(); // Refresh messages
+                } else {
+                    showNotification(data.error || 'Failed to send message', 'error');
+                }
+            })
+            .catch(() => {
+                showNotification('Network error', 'error');
+            })
+            .finally(() => {
+                chatInput.disabled = false;
+                chatInput.focus();
+            });
+        }
+        
+        function loadMessages() {
+            fetch('/get_messages')
+            .then(response => response.json())
+            .then(data => {
+                if (data.messages) {
+                    displayMessages(data.messages);
+                }
+            })
+            .catch(console.error);
+        }
+        
+        function displayMessages(messages) {
+            const chatContainer = document.getElementById('chat-messages');
+            
+            if (messages.length === 0) {
+                chatContainer.innerHTML = '<div class="chat-empty">Start a conversation! 😊</div>';
+                return;
+            }
+            
+            chatContainer.innerHTML = '';
+            
+            messages.forEach(msg => {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `chat-message ${msg.is_own ? 'own-message' : 'other-message'}`;
+                
+                const timestamp = new Date(msg.timestamp).toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                messageDiv.innerHTML = `
+                    <div class="message-content">
+                        <div class="message-text">${escapeHtml(msg.message)}</div>
+                        <div class="message-meta">
+                            <span class="message-sender">${msg.sender}</span>
+                            <span class="message-time">${timestamp}</span>
                         </div>
                     </div>
                 `;
-                statsDisplay.style.display = statsDisplay.style.display === 'none' ? 'block' : 'none';
-            } catch (error) {
-                console.log('Error fetching stats');
+                
+                chatContainer.appendChild(messageDiv);
+            });
+            
+            // Scroll to bottom
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+                const score = parseInt(compatibility);
+                if (score >= 70) {
+                    scoreCircle.classList.add('high-compatibility');
+                } else if (score >= 40) {
+                    scoreCircle.classList.add('medium-compatibility');
+                } else {
+                    scoreCircle.classList.add('low-compatibility');
+                }
+                
+                // Animate the score
+                animateScore(score);
             }
-        });
-
+            
+            document.getElementById('match-result').style.display = 'block';
+            
+            // Scroll to result
+            document.getElementById('match-result').scrollIntoView({ 
+                behavior: 'smooth' 
+            });
+        }
+        
+        function animateScore(targetScore) {
+            const scoreText = document.getElementById('compatibility');
+            let currentScore = 0;
+            const increment = targetScore / 30;
+            
+            const animation = setInterval(() => {
+                currentScore += increment;
+                if (currentScore >= targetScore) {
+                    scoreText.textContent = targetScore + '%';
+                    clearInterval(animation);
+                } else {
+                    scoreText.textContent = Math.round(currentScore) + '%';
+                }
+            }, 50);
+        }
+        
+        // Enhanced waiting screen
         function showWaitingScreen() {
             document.getElementById('waiting-screen').style.display = 'block';
             
             // Auto-check for matches every 10 seconds
-            setInterval(async () => {
+            const matchCheckInterval = setInterval(async () => {
                 try {
                     const response = await fetch('/check_match');
                     const result = await response.json();
                     
                     if (result.status === 'matched') {
+                        clearInterval(matchCheckInterval);
                         document.getElementById('waiting-screen').style.display = 'none';
                         showMatchResult(result);
                     }
@@ -219,20 +962,165 @@
                     console.log('Auto-check error');
                 }
             }, 10000);
+            
+            // Store interval ID for cleanup
+            window.matchCheckInterval = matchCheckInterval;
+        }
+        
+        // Utility functions
+        function copyToClipboard() {
+            const anonymousId = document.getElementById('anonymous-id').textContent;
+            navigator.clipboard.writeText(anonymousId).then(() => {
+                showNotification('ID copied to clipboard! 📋', 'success');
+            }).catch(() => {
+                showNotification('Failed to copy ID', 'error');
+            });
+        }
+        
+        function shareMatch() {
+            const anonymousId = document.getElementById('anonymous-id').textContent;
+            const location = document.getElementById('location').textContent;
+            const datetime = document.getElementById('datetime').textContent;
+            
+            const shareText = `🎉 I found a match on College Blind Date!\\n\\nMy date's ID: ${anonymousId}\\nLocation: ${location}\\nTime: ${datetime}\\n\\nWish me luck! 💕`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'College Blind Date Match!',
+                    text: shareText
+                });
+            } else {
+                navigator.clipboard.writeText(shareText).then(() => {
+                    showNotification('Match details copied to clipboard!', 'success');
+                });
+            }
+        }
+        
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // Animate in
+            setTimeout(() => notification.classList.add('show'), 100);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => document.body.removeChild(notification), 300);
+            }, 3000);
+        }
+        
+        function animateNumber(element, target) {
+            let current = 0;
+            const increment = target / 20;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    element.textContent = target;
+                    clearInterval(timer);
+                } else {
+                    element.textContent = Math.round(current);
+                }
+            }, 50);
         }
 
-        function showMatchResult(result) {
-            document.getElementById('anonymous-id').textContent = result.anonymous_id;
-            document.getElementById('location').textContent = result.location;
-            document.getElementById('datetime').textContent = `${result.date} at ${result.time}`;
+        // Check for match updates
+        document.getElementById('check-match-btn').addEventListener('click', async function() {
+            const btn = this;
+            const originalText = btn.textContent;
+            btn.textContent = '🔄 Checking...';
+            btn.disabled = true;
             
-            if (result.hobby_compatibility) {
-                document.getElementById('compatibility').textContent = result.hobby_compatibility;
-                document.getElementById('compatibility-section').style.display = 'block';
+            try {
+                const response = await fetch('/check_match');
+                const result = await response.json();
+                
+                if (result.status === 'matched') {
+                    if (window.matchCheckInterval) {
+                        clearInterval(window.matchCheckInterval);
+                    }
+                    document.getElementById('waiting-screen').style.display = 'none';
+                    showMatchResult(result);
+                } else {
+                    showNotification('No match yet, keep waiting! ⏰');
+                }
+            } catch (error) {
+                showNotification('Error checking for matches', 'error');
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        });
+
+        // Cancel matchmaking and go back to home
+        document.getElementById('cancel-match-btn').addEventListener('click', async function() {
+            if (window.matchCheckInterval) {
+                clearInterval(window.matchCheckInterval);
             }
             
-            document.getElementById('match-result').style.display = 'block';
-        }
+            try {
+                await fetch('/cancel_match', { method: 'POST' });
+            } catch (error) {
+                console.log('Error canceling match');
+            }
+            
+            // Reset to home screen
+            document.getElementById('waiting-screen').style.display = 'none';
+            document.getElementById('match-result').style.display = 'none';
+            document.getElementById('registration-form').style.display = 'block';
+            
+            // Reset form state
+            currentStep = 1;
+            selectedInterests.clear();
+            updateFormStep();
+            updateSelectedInterests();
+            document.getElementById('userForm').reset();
+            
+            showNotification('Matchmaking canceled. Try again anytime!', 'info');
+        });
+
+        // Show stats with enhanced animation
+        document.getElementById('show-stats').addEventListener('click', async function() {
+            try {
+                const response = await fetch('/stats');
+                const stats = await response.json();
+                
+                const statsDisplay = document.getElementById('stats-display');
+                statsDisplay.innerHTML = `
+                    <div class="stats-grid enhanced">
+                        <div class="stat-item">
+                            <div class="stat-number" data-target="${stats.total_users}">0</div>
+                            <div class="stat-label">Total Users</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" data-target="${stats.total_matches}">0</div>
+                            <div class="stat-label">Matches Made</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" data-target="${stats.waiting_users}">0</div>
+                            <div class="stat-label">Looking for Love</div>
+                        </div>
+                    </div>
+                `;
+                
+                const isVisible = statsDisplay.style.display === 'block';
+                statsDisplay.style.display = isVisible ? 'none' : 'block';
+                
+                if (!isVisible) {
+                    // Animate the numbers
+                    const numberElements = statsDisplay.querySelectorAll('.stat-number');
+                    numberElements.forEach(element => {
+                        const target = parseInt(element.dataset.target);
+                        animateNumber(element, target);
+                    });
+                }
+            } catch (error) {
+                showNotification('Error fetching stats', 'error');
+            }
+        });
     </script>
 </body>
 </html>
