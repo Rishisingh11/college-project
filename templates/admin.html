@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - College Blind Date</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .admin-container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .admin-section { margin-bottom: 30px; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .admin-table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+        .admin-table th, .admin-table td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        .admin-table th { background: #f8f9fa; font-weight: bold; }
+        .admin-table tr:hover { background: #f5f5f5; }
+        .user-id { font-family: monospace; font-size: 0.9em; color: #666; }
+        .hobby-list { max-width: 200px; word-wrap: break-word; }
+        .match-status { padding: 4px 8px; border-radius: 4px; font-size: 0.8em; font-weight: bold; }
+        .matched { background: #d4edda; color: #155724; }
+        .waiting { background: #fff3cd; color: #856404; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 15px 0; }
+        .stat-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center; }
+        .stat-number { font-size: 2em; font-weight: bold; margin-bottom: 5px; }
+        .anonymous-id { font-weight: bold; color: #e91e63; }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <header style="text-align: center; margin-bottom: 30px;">
+            <h1>🛠️ Admin Panel</h1>
+            <p>College Blind Date System Management</p>
+            <a href="/" style="color: #007bff; text-decoration: none;">← Back to Main Site</a>
+        </header>
+
+        <!-- Statistics Section -->
+        <div class="admin-section">
+            <h2>📊 System Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">{{ data.users|length }}</div>
+                    <div class="stat-label">Total Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ data.matches|length }}</div>
+                    <div class="stat-label">Matches Created</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ data.users|length - (data.matches|length * 2) }}</div>
+                    <div class="stat-label">Users Waiting</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">
+                        {% if data.users|length > 0 %}
+                            {{ "%.1f"|format((data.matches|length * 2 / data.users|length) * 100) }}%
+                        {% else %}
+                            0%
+                        {% endif %}
+                    </div>
+                    <div class="stat-label">Match Rate</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Section -->
+        <div class="admin-section">
+            <h2>👥 Registered Users ({{ data.users|length }})</h2>
+            {% if data.users %}
+                <div style="overflow-x: auto;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>User ID</th>
+                                <th>Gender</th>
+                                <th>Looking For</th>
+                                <th>Year</th>
+                                <th>Preferred Year</th>
+                                <th>Hobbies</th>
+                                <th>Contact Info</th>
+                                <th>Status</th>
+                                <th>Registered</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in data.users %}
+                            <tr>
+                                <td class="user-id">{{ user.id[:8] }}...</td>
+                                <td>{{ user.gender }}</td>
+                                <td>{{ user.preferred_gender }}</td>
+                                <td>{{ user.year }}</td>
+                                <td>{{ user.preferred_year }}</td>
+                                <td class="hobby-list">{{ user.hobbies }}</td>
+                                <td>{{ user.contact_info or 'N/A' }}</td>
+                                <td>
+                                    {% set is_matched = false %}
+                                    {% for match in data.matches %}
+                                        {% if match.user1_id == user.id or match.user2_id == user.id %}
+                                            {% set is_matched = true %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    <span class="match-status {% if is_matched %}matched{% else %}waiting{% endif %}">
+                                        {% if is_matched %}Matched{% else %}Waiting{% endif %}
+                                    </span>
+                                </td>
+                                <td>{{ user.created_at[:10] }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p>No users registered yet.</p>
+            {% endif %}
+        </div>
+
+        <!-- Matches Section -->
+        <div class="admin-section">
+            <h2>💕 Active Matches ({{ data.matches|length }})</h2>
+            {% if data.matches %}
+                <div style="overflow-x: auto;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Match ID</th>
+                                <th>User 1</th>
+                                <th>Anonymous ID 1</th>
+                                <th>User 2</th>
+                                <th>Anonymous ID 2</th>
+                                <th>Meeting Location</th>
+                                <th>Date & Time</th>
+                                <th>Created</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for match in data.matches %}
+                            <tr>
+                                <td class="user-id">{{ match.id[:8] }}...</td>
+                                <td class="user-id">{{ match.user1_id[:8] }}...</td>
+                                <td class="anonymous-id">{{ match.user1_anonymous_id }}</td>
+                                <td class="user-id">{{ match.user2_id[:8] }}...</td>
+                                <td class="anonymous-id">{{ match.user2_anonymous_id }}</td>
+                                <td>{{ match.location }}</td>
+                                <td>{{ match.date }} at {{ match.time }}</td>
+                                <td>{{ match.created_at[:16] }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p>No matches created yet.</p>
+            {% endif %}
+        </div>
+
+        <!-- Compatibility Analysis -->
+        {% if data.users|length > 0 %}
+        <div class="admin-section">
+            <h2>🔍 Compatibility Analysis</h2>
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px;">
+                <h4>Gender Distribution:</h4>
+                {% set gender_counts = {} %}
+                {% for user in data.users %}
+                    {% set _ = gender_counts.update({user.gender: gender_counts.get(user.gender, 0) + 1}) %}
+                {% endfor %}
+                <ul>
+                    {% for gender, count in gender_counts.items() %}
+                        <li>{{ gender }}: {{ count }} users</li>
+                    {% endfor %}
+                </ul>
+
+                <h4>Year Distribution:</h4>
+                {% set year_counts = {} %}
+                {% for user in data.users %}
+                    {% set _ = year_counts.update({user.year: year_counts.get(user.year, 0) + 1}) %}
+                {% endfor %}
+                <ul>
+                    {% for year, count in year_counts.items() %}
+                        <li>{{ year }}: {{ count }} users</li>
+                    {% endfor %}
+                </ul>
+
+                <h4>Popular Hobbies:</h4>
+                {% set hobby_counts = {} %}
+                {% for user in data.users %}
+                    {% for hobby in user.hobbies.split(',') %}
+                        {% set clean_hobby = hobby.strip().lower() %}
+                        {% if clean_hobby %}
+                            {% set _ = hobby_counts.update({clean_hobby: hobby_counts.get(clean_hobby, 0) + 1}) %}
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
+                <ul>
+                    {% for hobby, count in hobby_counts.items() %}
+                        {% if count > 1 %}
+                            <li>{{ hobby.title() }}: {{ count }} users</li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+
+        <footer style="text-align: center; margin-top: 40px; padding: 20px; color: #666;">
+            <p>College Blind Date System - Admin Panel</p>
+            <p><small>Data is stored locally in data.json</small></p>
+        </footer>
+    </div>
+</body>
+</html>

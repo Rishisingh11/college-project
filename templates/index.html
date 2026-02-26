@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Blind Date - Find Your Match</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💘 College Blind Date</h1>
+            <p>Find your perfect anonymous match on campus!</p>
+        </header>
+
+        <div id="registration-form" class="form-container">
+            <h2>Tell us about yourself</h2>
+            <form id="userForm">
+                <div class="form-group">
+                    <label for="gender">Your Gender:</label>
+                    <select id="gender" name="gender" required>
+                        <option value="">Select your gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Non-binary">Non-binary</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="preferred_gender">Looking for:</label>
+                    <select id="preferred_gender" name="preferred_gender" required>
+                        <option value="">Select preferred gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Non-binary">Non-binary</option>
+                        <option value="Other">Other</option>
+                        <option value="Any">Any</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="year">Your Year:</label>
+                    <select id="year" name="year" required>
+                        <option value="">Select your year</option>
+                        {% for year in years %}
+                        <option value="{{ year }}">{{ year }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="preferred_year">Preferred Year to Date:</label>
+                    <select id="preferred_year" name="preferred_year" required>
+                        <option value="">Select preferred year</option>
+                        {% for year in years %}
+                        <option value="{{ year }}">{{ year }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="hobbies">Your Hobbies/Interests:</label>
+                    <input type="text" id="hobbies" name="hobbies" 
+                           placeholder="e.g. reading, hiking, music, gaming, art..." 
+                           required>
+                    <small>Separate multiple hobbies with commas</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="contact_info">Contact Info (optional):</label>
+                    <input type="text" id="contact_info" name="contact_info" 
+                           placeholder="Email, phone, or social media handle">
+                    <small>This will only be shared if you both agree to reveal identities</small>
+                </div>
+
+                <button type="submit" class="submit-btn">Find My Match! 💕</button>
+            </form>
+        </div>
+
+        <div id="waiting-screen" class="result-container" style="display: none;">
+            <div class="waiting-animation">
+                <h2>🔍 Looking for your match...</h2>
+                <div class="spinner"></div>
+                <p>You're in the system! We'll find you someone special.</p>
+                <button id="check-match-btn" class="check-btn">Check for Updates</button>
+            </div>
+        </div>
+
+        <div id="match-result" class="result-container" style="display: none;">
+            <div class="match-found">
+                <h2>🎉 Match Found!</h2>
+                <div class="match-details">
+                    <div class="detail-item">
+                        <span class="label">Your Date's ID:</span>
+                        <span class="value" id="anonymous-id"></span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Meeting Location:</span>
+                        <span class="value" id="location"></span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Date & Time:</span>
+                        <span class="value" id="datetime"></span>
+                    </div>
+                    <div class="detail-item" id="compatibility-section" style="display: none;">
+                        <span class="label">Hobby Compatibility:</span>
+                        <span class="value" id="compatibility"></span>
+                    </div>
+                </div>
+                <div class="match-instructions">
+                    <h3>📋 Instructions:</h3>
+                    <ul>
+                        <li>Look for someone with the anonymous ID above</li>
+                        <li>Both of you will have each other's anonymous IDs</li>
+                        <li>Decide together if you want to reveal your real identities</li>
+                        <li>Have fun and be respectful! 😊</li>
+                    </ul>
+                </div>
+                <button onclick="location.reload()" class="new-match-btn">Find Another Match</button>
+            </div>
+        </div>
+
+        <div class="stats-section">
+            <button id="show-stats" class="stats-btn">📊 System Stats</button>
+            <div id="stats-display" style="display: none; margin-top: 10px;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Form submission handler
+        document.getElementById('userForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            try {
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('registration-form').style.display = 'none';
+                    
+                    if (result.status === 'matched') {
+                        showMatchResult(result);
+                    } else {
+                        showWaitingScreen();
+                    }
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (error) {
+                alert('Network error. Please try again.');
+            }
+        });
+
+        // Check for match updates
+        document.getElementById('check-match-btn').addEventListener('click', async function() {
+            try {
+                const response = await fetch('/check_match');
+                const result = await response.json();
+                
+                if (result.status === 'matched') {
+                    document.getElementById('waiting-screen').style.display = 'none';
+                    showMatchResult(result);
+                }
+            } catch (error) {
+                console.log('Error checking for matches');
+            }
+        });
+
+        // Show stats
+        document.getElementById('show-stats').addEventListener('click', async function() {
+            try {
+                const response = await fetch('/stats');
+                const stats = await response.json();
+                
+                const statsDisplay = document.getElementById('stats-display');
+                statsDisplay.innerHTML = `
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-number">${stats.total_users}</div>
+                            <div class="stat-label">Total Users</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">${stats.total_matches}</div>
+                            <div class="stat-label">Matches Made</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">${stats.waiting_users}</div>
+                            <div class="stat-label">Looking for Love</div>
+                        </div>
+                    </div>
+                `;
+                statsDisplay.style.display = statsDisplay.style.display === 'none' ? 'block' : 'none';
+            } catch (error) {
+                console.log('Error fetching stats');
+            }
+        });
+
+        function showWaitingScreen() {
+            document.getElementById('waiting-screen').style.display = 'block';
+            
+            // Auto-check for matches every 10 seconds
+            setInterval(async () => {
+                try {
+                    const response = await fetch('/check_match');
+                    const result = await response.json();
+                    
+                    if (result.status === 'matched') {
+                        document.getElementById('waiting-screen').style.display = 'none';
+                        showMatchResult(result);
+                    }
+                } catch (error) {
+                    console.log('Auto-check error');
+                }
+            }, 10000);
+        }
+
+        function showMatchResult(result) {
+            document.getElementById('anonymous-id').textContent = result.anonymous_id;
+            document.getElementById('location').textContent = result.location;
+            document.getElementById('datetime').textContent = `${result.date} at ${result.time}`;
+            
+            if (result.hobby_compatibility) {
+                document.getElementById('compatibility').textContent = result.hobby_compatibility;
+                document.getElementById('compatibility-section').style.display = 'block';
+            }
+            
+            document.getElementById('match-result').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
